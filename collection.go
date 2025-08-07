@@ -6,10 +6,10 @@ import (
 )
 
 // example
-// functional.From[string, float](arr).
+// functional.From[string, float64](arr).
 //   Filter(func(str any) bool{ str.(string) != "" }).
-//   MapWithError(func(str any) int { return strconv.Atoi(str.(string)) }).
-//   Map(func(i any) float64 { return i / 2.0 }).
+//   MapWithError(func(str any) (any, error) { return strconv.Atoi(str.(string)) /* return int,error */ }).
+//   Map(func(i any) any { return i / 2.0 /* return float64 */}).
 //   ToSlice() // return []float64, error
 
 // NOTE
@@ -105,6 +105,8 @@ func (c Collection[T]) Reduce(fn func(accumulator T, current any) T, initialValu
 
 	return v, c.err
 }
+
+// example for reduce
 func Sum[T constraints.Integer | constraints.Float](acc T, v any) T {
 	return acc + v.(T)
 }
