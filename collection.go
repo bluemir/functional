@@ -136,3 +136,15 @@ func (c Collection[T]) Last() (*T, error) {
 
 	return &v, nil
 }
+func (c Collection[T]) Pick(rand int) (*T, error) {
+	if c.err != nil {
+		return nil, c.err
+	}
+	if len(c.items) == 0 {
+		return nil, errors.Errorf("collection is empty")
+	}
+
+	v := c.items[rand%len(c.items)].(T)
+
+	return &v, nil
+}
