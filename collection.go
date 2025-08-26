@@ -76,6 +76,7 @@ func (col Collection[T]) Filter(fn func(any) bool) Collection[T] {
 	}
 }
 
+// aggregator
 func (c Collection[T]) ToSlice() ([]T, error) {
 	if c.err != nil {
 		return nil, c.err
@@ -109,4 +110,29 @@ func (c Collection[T]) Reduce(fn func(accumulator T, current any) T, initialValu
 // example for reduce
 func Sum[T constraints.Integer | constraints.Float](acc T, v any) T {
 	return acc + v.(T)
+}
+
+func (c Collection[T]) First() (*T, error) {
+	if c.err != nil {
+		return nil, c.err
+	}
+	if len(c.items) == 0 {
+		return nil, errors.Errorf("collection is empty")
+	}
+
+	v := c.items[0].(T)
+
+	return &v, nil
+}
+func (c Collection[T]) Last() (*T, error) {
+	if c.err != nil {
+		return nil, c.err
+	}
+	if len(c.items) == 0 {
+		return nil, errors.Errorf("collection is empty")
+	}
+
+	v := c.items[len(c.items)-1].(T)
+
+	return &v, nil
 }
