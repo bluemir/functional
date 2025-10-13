@@ -106,6 +106,19 @@ func (c Collection[T]) Reduce(fn func(accumulator T, current any) T, initialValu
 
 	return v, c.err
 }
+func (c Collection[T]) ForEach(fn func(item T) error) error {
+	if c.err != nil {
+		return c.err
+	}
+
+	for _, item := range c.items {
+		if err := fn(item.(T)); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 // example for reduce
 func Sum[T constraints.Integer | constraints.Float](acc T, v any) T {
