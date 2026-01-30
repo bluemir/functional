@@ -97,8 +97,3 @@ func First[In any](in []In, fn func(In) bool) *In {
 	}
 	return nil
 }
-
-// arr = Filter(arr, func(v int) bool)
-// arr = Map(arr, func(v int) float)
-// ---- vs ----
-// functional.From(arr).Filter(func(v any) bool { return v.(string) == "aa" }).Map(func(v any) any{  return v.(int) / 0.2 } ).ToArray()
