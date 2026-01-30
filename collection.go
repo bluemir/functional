@@ -1,7 +1,8 @@
 package functional
 
 import (
-	"github.com/pkg/errors"
+	"errors"
+
 	"golang.org/x/exp/constraints"
 )
 
@@ -92,7 +93,7 @@ func (c Collection[T]) ToSlice() ([]T, error) {
 	arr, err := MapWithError(c.items, func(v any) (T, error) {
 		a, ok := v.(T)
 		if !ok {
-			return a, errors.Errorf("type convert failed")
+			return a, errors.New("type convert failed")
 		}
 		return a, nil
 	})
@@ -112,7 +113,7 @@ func (c Collection[T]) Reduce(fn func(accumulator T, current any) T, initialValu
 		v = fn(v, item)
 	}
 
-	return v, c.err
+	return v, nil
 }
 func (c Collection[T]) ForEach(fn func(item T) error) error {
 	if c.err != nil {
@@ -138,7 +139,7 @@ func (c Collection[T]) First() (*T, error) {
 		return nil, c.err
 	}
 	if len(c.items) == 0 {
-		return nil, errors.Errorf("collection is empty")
+		return nil, errors.New("collection is empty")
 	}
 
 	v := c.items[0].(T)
@@ -150,7 +151,7 @@ func (c Collection[T]) Last() (*T, error) {
 		return nil, c.err
 	}
 	if len(c.items) == 0 {
-		return nil, errors.Errorf("collection is empty")
+		return nil, errors.New("collection is empty")
 	}
 
 	v := c.items[len(c.items)-1].(T)
@@ -162,7 +163,7 @@ func (c Collection[T]) Pick(rand int) (*T, error) {
 		return nil, c.err
 	}
 	if len(c.items) == 0 {
-		return nil, errors.Errorf("collection is empty")
+		return nil, errors.New("collection is empty")
 	}
 
 	v := c.items[rand%len(c.items)].(T)

@@ -35,7 +35,7 @@ func ContainWithFn[In any](in []In, fn func(In) bool) bool {
 	return false
 }
 func Filter[T any](in []T, fn func(T) bool) []T {
-	out := []T{}
+	out := make([]T, 0, len(in))
 
 	for _, v := range in {
 		if fn(v) {
