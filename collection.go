@@ -1,7 +1,7 @@
 package functional
 
 import (
-	"errors"
+	"fmt"
 
 	"golang.org/x/exp/constraints"
 )
@@ -93,7 +93,7 @@ func (c Collection[T]) ToSlice() ([]T, error) {
 	arr, err := MapWithError(c.items, func(v any) (T, error) {
 		a, ok := v.(T)
 		if !ok {
-			return a, errors.New("type convert failed")
+			return a, fmt.Errorf("type convert failed: expected %T, got %T", *new(T), v)
 		}
 		return a, nil
 	})
@@ -139,7 +139,7 @@ func (c Collection[T]) First() (*T, error) {
 		return nil, c.err
 	}
 	if len(c.items) == 0 {
-		return nil, errors.New("collection is empty")
+		return nil, fmt.Errorf("collection is empty")
 	}
 
 	v := c.items[0].(T)
@@ -151,7 +151,7 @@ func (c Collection[T]) Last() (*T, error) {
 		return nil, c.err
 	}
 	if len(c.items) == 0 {
-		return nil, errors.New("collection is empty")
+		return nil, fmt.Errorf("collection is empty")
 	}
 
 	v := c.items[len(c.items)-1].(T)
@@ -163,7 +163,7 @@ func (c Collection[T]) Pick(rand int) (*T, error) {
 		return nil, c.err
 	}
 	if len(c.items) == 0 {
-		return nil, errors.New("collection is empty")
+		return nil, fmt.Errorf("collection is empty")
 	}
 
 	v := c.items[rand%len(c.items)].(T)

@@ -1,23 +1,59 @@
 package functional
 
-type PipeFn func(any) any
+import "fmt"
+
+type PipeFn func(any /* []In */) (any /* []Out */, error)
 
 func MapFn[In, Out any](fn func(In) Out) PipeFn {
-	return func(input any) any {
-		return Map(input.([]In), fn) // 라이브러리 내부에서 type assertion
+	return func(input any /* []In */) (any /* []Out */, error) {
+		slice, ok := input.([]In)
+		if !ok {
+			return nil, fmt.Errorf("MapFn: type assertion failed: expected []%T, got %T", *new(In), input)
+		}
+		return Map(slice, fn), nil
 	}
 }
 
 func FilterFn[T any](fn func(T) bool) PipeFn {
-	return func(input any) any {
-		return Filter(input.([]T), fn)
+	return func(input any /* []T */) (any /* []T */, error) {
+		slice, ok := input.([]T)
+		if !ok {
+			return nil, fmt.Errorf("FilterFn: type assertion failed: expected []%T, got %T", *new(T), input)
+		}
+		return Filter(slice, fn), nil
 	}
 }
 
-func Pipe[In, Out any](input []In, fns ...PipeFn) []Out {
+func MapWithErrorFn[In, Out any](fn func(In) (Out, error)) PipeFn {
+	return func(input any /* []In */) (any /* []Out */, error) {
+		slice, ok := input.([]In)
+		if !ok {
+			return nil, fmt.Errorf("MapWithErrorFn: type assertion failed: expected []%T, got %T", *new(In), input)
+		}
+		return MapWithError(slice, fn)
+	}
+}
+
+
+// example
+// functional.Pipe[int, string](
+//   []int{1, 2, 3},
+//   functional.FilterFn(func(i int) bool { return i > 1 }),
+//   functional.MapFn(func(i int) string { return strconv.Itoa(i * 10) }),
+//   functional.MapWithErrorFn(func(s string) (string, error) { return s + "!", nil }),
+// ) // return []string{"20!", "30!"}, nil
+func Pipe[In, Out any](input []In, fns ...PipeFn) ([]Out, error) {
 	var current any = input
 	for _, fn := range fns {
-		current = fn(current)
+		result, err := fn(current)
+		if err != nil {
+			return nil, err
+		}
+		current = result
 	}
-	return current.([]Out)
+	result, ok := current.([]Out)
+	if !ok {
+		return nil, fmt.Errorf("Pipe: type assertion failed: expected []%T, got %T", *new(Out), current)
+	}
+	return result, nil
 }
