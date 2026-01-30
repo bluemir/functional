@@ -23,32 +23,40 @@ type Collection[T any] struct {
 }
 
 func From[From, To any](from []From) Collection[To] {
+	items := make([]any, len(from))
+	for i, v := range from {
+		items[i] = v
+	}
 	return Collection[To]{
-		items: Map(from, func(v From) any { return v }),
+		items: items,
 	}
 }
 
-func (col Collection[T]) Map(fn func(any) any) Collection[T] { // if want to convert type. use or 'any'
-	out := []any{}
+func (col Collection[T]) Map(fn func(any) any) Collection[T] {
+	if col.err != nil {
+		return col
+	}
 
-	// TODO concurrent
+	out := make([]any, 0, len(col.items))
 	for _, v := range col.items {
 		out = append(out, fn(v))
 	}
 
 	return Collection[T]{
 		items: out,
-		err:   col.err,
 	}
 }
 func (col Collection[T]) MapWithError(fn func(any) (any, error)) Collection[T] {
-	out := []any{}
+	if col.err != nil {
+		return col
+	}
 
+	out := make([]any, 0, len(col.items))
 	for _, v := range col.items {
 		r, err := fn(v)
 		if err != nil {
 			return Collection[T]{
-				err: col.err,
+				err: err,
 			}
 		}
 		out = append(out, r)
@@ -56,14 +64,15 @@ func (col Collection[T]) MapWithError(fn func(any) (any, error)) Collection[T] {
 
 	return Collection[T]{
 		items: out,
-		err:   col.err,
 	}
-
 }
 
 func (col Collection[T]) Filter(fn func(any) bool) Collection[T] {
-	out := []any{}
+	if col.err != nil {
+		return col
+	}
 
+	out := make([]any, 0, len(col.items))
 	for _, v := range col.items {
 		if fn(v) {
 			out = append(out, v)
@@ -72,7 +81,6 @@ func (col Collection[T]) Filter(fn func(any) bool) Collection[T] {
 
 	return Collection[T]{
 		items: out,
-		err:   col.err,
 	}
 }
 

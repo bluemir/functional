@@ -1,7 +1,7 @@
 package functional
 
 func Map[In any, Out any](in []In, fn func(In) Out) []Out {
-	out := []Out{}
+	out := make([]Out, 0, len(in))
 
 	for _, v := range in {
 		out = append(out, fn(v))
@@ -10,7 +10,7 @@ func Map[In any, Out any](in []In, fn func(In) Out) []Out {
 	return out
 }
 func MapWithError[In any, Out any](in []In, fn func(In) (Out, error)) ([]Out, error) {
-	out := []Out{}
+	out := make([]Out, 0, len(in))
 
 	for _, v := range in {
 		o, err := fn(v)
@@ -25,13 +25,13 @@ func MapWithError[In any, Out any](in []In, fn func(In) (Out, error)) ([]Out, er
 func Contain[In comparable](in []In, v In) bool {
 	return ContainWithFn(in, func(i In) bool { return i == v })
 }
+
 func ContainWithFn[In any](in []In, fn func(In) bool) bool {
 	for _, v := range in {
 		if fn(v) {
 			return true
 		}
 	}
-
 	return false
 }
 func Filter[T any](in []T, fn func(T) bool) []T {
@@ -46,7 +46,7 @@ func Filter[T any](in []T, fn func(T) bool) []T {
 	return out
 }
 func ToLookupTable[KeyType comparable, ElemType any](in []ElemType, keyFn func(ElemType) KeyType) map[KeyType]ElemType {
-	m := map[KeyType]ElemType{}
+	m := make(map[KeyType]ElemType, len(in))
 
 	for _, elem := range in {
 		key := keyFn(elem)
@@ -56,12 +56,7 @@ func ToLookupTable[KeyType comparable, ElemType any](in []ElemType, keyFn func(E
 	return m
 }
 func Some[T any](in []T, fn func(T) bool) bool {
-	for _, v := range in {
-		if fn(v) {
-			return true
-		}
-	}
-	return false
+	return ContainWithFn(in, fn)
 }
 func All[T any](in []T, fn func(T) bool) bool {
 	for _, v := range in {
@@ -71,18 +66,22 @@ func All[T any](in []T, fn func(T) bool) bool {
 	}
 	return true
 }
-func Reduce[In any, Out any](in []In, fn func(accumulator *Out, v In) Out, init Out) Out {
+func Reduce[In any, Out any](in []In, fn func(accumulator Out, v In) Out, init Out) Out {
 	out := init
 
 	for _, v := range in {
-		fn(&out, v)
+		out = fn(out, v)
 	}
 
 	return out
 }
 func Flat[T any](in [][]T) []T {
-	out := []T{}
+	size := 0
+	for _, arr := range in {
+		size += len(arr)
+	}
 
+	out := make([]T, 0, size)
 	for _, arr := range in {
 		out = append(out, arr...)
 	}
@@ -90,9 +89,27 @@ func Flat[T any](in [][]T) []T {
 }
 
 func First[In any](in []In, fn func(In) bool) *In {
+	for i := range in {
+		if fn(in[i]) {
+			return &in[i]
+		}
+	}
+	return nil
+}
+
+func Last[In any](in []In, fn func(In) bool) *In {
+	for i := len(in) - 1; i >= 0; i-- {
+		if fn(in[i]) {
+			return &in[i]
+		}
+	}
+	return nil
+}
+
+func ForEach[T any](in []T, fn func(T) error) error {
 	for _, v := range in {
-		if fn(v) {
-			return &v
+		if err := fn(v); err != nil {
+			return err
 		}
 	}
 	return nil
