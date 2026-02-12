@@ -143,3 +143,33 @@ func TestForEach_Error(t *testing.T) {
 	})
 	assert.Error(t, err)
 }
+
+func TestInsertFirst(t *testing.T) {
+	result := InsertFirst([]int{2, 3, 4}, 1)
+	assert.Equal(t, []int{1, 2, 3, 4}, result)
+}
+
+func TestInsertFirst_Empty(t *testing.T) {
+	result := InsertFirst([]int{}, 1)
+	assert.Equal(t, []int{1}, result)
+}
+
+func TestInsertFirst_String(t *testing.T) {
+	result := InsertFirst([]string{"b", "c"}, "a")
+	assert.Equal(t, []string{"a", "b", "c"}, result)
+}
+
+func TestInsertLast(t *testing.T) {
+	result := InsertLast([]int{1, 2, 3}, 4)
+	assert.Equal(t, []int{1, 2, 3, 4}, result)
+}
+
+func TestInsertLast_Empty(t *testing.T) {
+	result := InsertLast([]int{}, 1)
+	assert.Equal(t, []int{1}, result)
+}
+
+func TestInsertLast_String(t *testing.T) {
+	result := InsertLast([]string{"a", "b"}, "c")
+	assert.Equal(t, []string{"a", "b", "c"}, result)
+}

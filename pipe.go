@@ -35,6 +35,33 @@ func MapWithErrorFn[In, Out any](fn func(In) (Out, error)) PipeFn {
 }
 
 
+// InsertFirstFn returns a PipeFn that prepends the given element to the slice.
+func InsertFirstFn[T any](elem T) PipeFn {
+	return func(input any /* []T */) (any /* []T */, error) {
+		slice, ok := input.([]T)
+		if !ok {
+			return nil, fmt.Errorf("InsertFirstFn: type assertion failed: expected []%T, got %T", *new(T), input)
+		}
+		return InsertFirst(slice, elem), nil
+	}
+}
+
+// InsertLastFn returns a PipeFn that appends the given element to the slice.
+func InsertLastFn[T any](elem T) PipeFn {
+	return func(input any /* []T */) (any /* []T */, error) {
+		slice, ok := input.([]T)
+		if !ok {
+			return nil, fmt.Errorf("InsertLastFn: type assertion failed: expected []%T, got %T", *new(T), input)
+		}
+		return InsertLast(slice, elem), nil
+	}
+}
+
+// ConsFn is an alias for InsertFirstFn (classic FP "cons" operation).
+func ConsFn[T any](elem T) PipeFn {
+	return InsertFirstFn(elem)
+}
+
 // example
 // functional.Pipe[int, string](
 //   []int{1, 2, 3},

@@ -114,3 +114,17 @@ func ForEach[T any](in []T, fn func(T) error) error {
 	}
 	return nil
 }
+
+func InsertFirst[T any](slice []T, elem T) []T {
+	out := make([]T, 0, len(slice)+1)
+	out = append(out, elem)
+	out = append(out, slice...)
+	return out
+}
+
+func InsertLast[T any](slice []T, elem T) []T {
+	out := make([]T, 0, len(slice)+1)
+	out = append(out, slice...)
+	out = append(out, elem)
+	return out
+}

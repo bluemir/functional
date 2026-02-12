@@ -144,3 +144,86 @@ func TestMapWithErrorFnInPipeline(t *testing.T) {
 
 	assert.ErrorContains(t, err, "negative number: -3")
 }
+
+func TestInsertFirstFn(t *testing.T) {
+	result, err := functional.Pipe[int, int](
+		[]int{2, 3, 4},
+		functional.InsertFirstFn(1),
+	)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []int{1, 2, 3, 4}, result)
+}
+
+func TestInsertFirstFn_Empty(t *testing.T) {
+	result, err := functional.Pipe[int, int](
+		[]int{},
+		functional.InsertFirstFn(1),
+	)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []int{1}, result)
+}
+
+func TestInsertFirstFn_TypeAssertionError(t *testing.T) {
+	_, err := functional.Pipe[int, string](
+		[]int{1, 2, 3},
+		functional.MapFn(func(i int) string { return fmt.Sprintf("%d", i) }),
+		functional.InsertFirstFn(0), // int into []string -> error
+	)
+
+	assert.Error(t, err)
+}
+
+func TestInsertLastFn(t *testing.T) {
+	result, err := functional.Pipe[int, int](
+		[]int{1, 2, 3},
+		functional.InsertLastFn(4),
+	)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []int{1, 2, 3, 4}, result)
+}
+
+func TestInsertLastFn_Empty(t *testing.T) {
+	result, err := functional.Pipe[int, int](
+		[]int{},
+		functional.InsertLastFn(1),
+	)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []int{1}, result)
+}
+
+func TestInsertLastFn_InPipeline(t *testing.T) {
+	result, err := functional.Pipe[int, int](
+		[]int{1, 2, 3},
+		functional.FilterFn(func(i int) bool { return i > 1 }),
+		functional.InsertLastFn(99),
+	)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []int{2, 3, 99}, result)
+}
+
+func TestConsFn(t *testing.T) {
+	result, err := functional.Pipe[int, int](
+		[]int{2, 3, 4},
+		functional.ConsFn(1),
+	)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []int{1, 2, 3, 4}, result)
+}
+
+func TestInsertFirstFn_InPipeline(t *testing.T) {
+	result, err := functional.Pipe[int, int](
+		[]int{3, 4, 5},
+		functional.InsertFirstFn(2),
+		functional.InsertFirstFn(1),
+		functional.InsertLastFn(6),
+	)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []int{1, 2, 3, 4, 5, 6}, result)
+}
