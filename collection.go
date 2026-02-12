@@ -90,7 +90,7 @@ func (c Collection[T]) ToSlice() ([]T, error) {
 	if c.err != nil {
 		return nil, c.err
 	}
-	arr, err := MapWithError(c.items, func(v any) (T, error) {
+	arr, err := SliceMapWithError(c.items, func(v any) (T, error) {
 		a, ok := v.(T)
 		if !ok {
 			return a, fmt.Errorf("type convert failed: expected %T, got %T", *new(T), v)

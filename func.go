@@ -1,6 +1,6 @@
 package functional
 
-func Map[In any, Out any](in []In, fn func(In) Out) []Out {
+func SliceMap[In any, Out any](in []In, fn func(In) Out) []Out {
 	out := make([]Out, 0, len(in))
 
 	for _, v := range in {
@@ -9,7 +9,7 @@ func Map[In any, Out any](in []In, fn func(In) Out) []Out {
 
 	return out
 }
-func MapWithError[In any, Out any](in []In, fn func(In) (Out, error)) ([]Out, error) {
+func SliceMapWithError[In any, Out any](in []In, fn func(In) (Out, error)) ([]Out, error) {
 	out := make([]Out, 0, len(in))
 
 	for _, v := range in {
@@ -34,7 +34,7 @@ func ContainWithFn[In any](in []In, fn func(In) bool) bool {
 	}
 	return false
 }
-func Filter[T any](in []T, fn func(T) bool) []T {
+func SliceFilter[T any](in []T, fn func(T) bool) []T {
 	out := make([]T, 0, len(in))
 
 	for _, v := range in {
@@ -115,14 +115,14 @@ func ForEach[T any](in []T, fn func(T) error) error {
 	return nil
 }
 
-func InsertFirst[T any](slice []T, elem T) []T {
+func SliceInsertFirst[T any](slice []T, elem T) []T {
 	out := make([]T, 0, len(slice)+1)
 	out = append(out, elem)
 	out = append(out, slice...)
 	return out
 }
 
-func InsertLast[T any](slice []T, elem T) []T {
+func SliceInsertLast[T any](slice []T, elem T) []T {
 	out := make([]T, 0, len(slice)+1)
 	out = append(out, slice...)
 	out = append(out, elem)

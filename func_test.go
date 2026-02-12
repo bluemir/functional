@@ -7,29 +7,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMap(t *testing.T) {
-	result := Map([]int{1, 2, 3}, func(v int) int { return v * 2 })
+func TestSliceMap(t *testing.T) {
+	result := SliceMap([]int{1, 2, 3}, func(v int) int { return v * 2 })
 	assert.Equal(t, []int{2, 4, 6}, result)
 }
 
-func TestMap_Empty(t *testing.T) {
-	result := Map([]int{}, func(v int) int { return v * 2 })
+func TestSliceMap_Empty(t *testing.T) {
+	result := SliceMap([]int{}, func(v int) int { return v * 2 })
 	assert.Empty(t, result)
 }
 
-func TestMap_TypeConvert(t *testing.T) {
-	result := Map([]int{1, 2, 3}, func(v int) string { return string(rune('a' + v - 1)) })
+func TestSliceMap_TypeConvert(t *testing.T) {
+	result := SliceMap([]int{1, 2, 3}, func(v int) string { return string(rune('a' + v - 1)) })
 	assert.Equal(t, []string{"a", "b", "c"}, result)
 }
 
-func TestMapWithError(t *testing.T) {
-	result, err := MapWithError([]int{1, 2, 3}, func(v int) (int, error) { return v * 2, nil })
+func TestSliceMapWithError(t *testing.T) {
+	result, err := SliceMapWithError([]int{1, 2, 3}, func(v int) (int, error) { return v * 2, nil })
 	assert.NoError(t, err)
 	assert.Equal(t, []int{2, 4, 6}, result)
 }
 
-func TestMapWithError_Error(t *testing.T) {
-	result, err := MapWithError([]int{1, 2, 3}, func(v int) (int, error) {
+func TestSliceMapWithError_Error(t *testing.T) {
+	result, err := SliceMapWithError([]int{1, 2, 3}, func(v int) (int, error) {
 		if v == 2 {
 			return 0, errors.New("error at 2")
 		}
@@ -49,13 +49,13 @@ func TestContainWithFn(t *testing.T) {
 	assert.False(t, ContainWithFn([]int{1, 2, 3}, func(v int) bool { return v > 3 }))
 }
 
-func TestFilter(t *testing.T) {
-	result := Filter([]int{1, 2, 3, 4, 5}, func(v int) bool { return v%2 == 0 })
+func TestSliceFilter(t *testing.T) {
+	result := SliceFilter([]int{1, 2, 3, 4, 5}, func(v int) bool { return v%2 == 0 })
 	assert.Equal(t, []int{2, 4}, result)
 }
 
-func TestFilter_Empty(t *testing.T) {
-	result := Filter([]int{1, 2, 3}, func(v int) bool { return v > 10 })
+func TestSliceFilter_Empty(t *testing.T) {
+	result := SliceFilter([]int{1, 2, 3}, func(v int) bool { return v > 10 })
 	assert.Empty(t, result)
 }
 
@@ -144,32 +144,32 @@ func TestForEach_Error(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestInsertFirst(t *testing.T) {
-	result := InsertFirst([]int{2, 3, 4}, 1)
+func TestSliceInsertFirst(t *testing.T) {
+	result := SliceInsertFirst([]int{2, 3, 4}, 1)
 	assert.Equal(t, []int{1, 2, 3, 4}, result)
 }
 
-func TestInsertFirst_Empty(t *testing.T) {
-	result := InsertFirst([]int{}, 1)
+func TestSliceInsertFirst_Empty(t *testing.T) {
+	result := SliceInsertFirst([]int{}, 1)
 	assert.Equal(t, []int{1}, result)
 }
 
-func TestInsertFirst_String(t *testing.T) {
-	result := InsertFirst([]string{"b", "c"}, "a")
+func TestSliceInsertFirst_String(t *testing.T) {
+	result := SliceInsertFirst([]string{"b", "c"}, "a")
 	assert.Equal(t, []string{"a", "b", "c"}, result)
 }
 
-func TestInsertLast(t *testing.T) {
-	result := InsertLast([]int{1, 2, 3}, 4)
+func TestSliceInsertLast(t *testing.T) {
+	result := SliceInsertLast([]int{1, 2, 3}, 4)
 	assert.Equal(t, []int{1, 2, 3, 4}, result)
 }
 
-func TestInsertLast_Empty(t *testing.T) {
-	result := InsertLast([]int{}, 1)
+func TestSliceInsertLast_Empty(t *testing.T) {
+	result := SliceInsertLast([]int{}, 1)
 	assert.Equal(t, []int{1}, result)
 }
 
-func TestInsertLast_String(t *testing.T) {
-	result := InsertLast([]string{"a", "b"}, "c")
+func TestSliceInsertLast_String(t *testing.T) {
+	result := SliceInsertLast([]string{"a", "b"}, "c")
 	assert.Equal(t, []string{"a", "b", "c"}, result)
 }

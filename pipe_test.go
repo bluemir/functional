@@ -12,7 +12,7 @@ import (
 func TestPipe(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{1, 2, 3},
-		functional.MapFn(func(i int) int { return i * 2 }),
+		functional.Map(func(i int) int { return i * 2 }),
 	)
 
 	assert.NoError(t, err)
@@ -22,7 +22,7 @@ func TestPipe(t *testing.T) {
 func TestPipeWithFilter(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{1, 2, 3, 4, 5},
-		functional.FilterFn(func(i int) bool { return i%2 == 0 }),
+		functional.Filter(func(i int) bool { return i%2 == 0 }),
 	)
 
 	assert.NoError(t, err)
@@ -32,8 +32,8 @@ func TestPipeWithFilter(t *testing.T) {
 func TestPipeMapAndFilter(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{1, 2, 3, 4, 5},
-		functional.MapFn(func(i int) int { return i * 2 }),
-		functional.FilterFn(func(i int) bool { return i > 5 }),
+		functional.Map(func(i int) int { return i * 2 }),
+		functional.Filter(func(i int) bool { return i > 5 }),
 	)
 
 	assert.NoError(t, err)
@@ -43,7 +43,7 @@ func TestPipeMapAndFilter(t *testing.T) {
 func TestPipeTypeConversion(t *testing.T) {
 	result, err := functional.Pipe[int, string](
 		[]int{1, 2, 3},
-		functional.MapFn(func(i int) string { return strconv.Itoa(i) }),
+		functional.Map(func(i int) string { return strconv.Itoa(i) }),
 	)
 
 	assert.NoError(t, err)
@@ -53,7 +53,7 @@ func TestPipeTypeConversion(t *testing.T) {
 func TestPipeEmptySlice(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{},
-		functional.MapFn(func(i int) int { return i * 2 }),
+		functional.Map(func(i int) int { return i * 2 }),
 	)
 
 	assert.NoError(t, err)
@@ -63,7 +63,7 @@ func TestPipeEmptySlice(t *testing.T) {
 func TestPipeTypeAssertionError(t *testing.T) {
 	_, err := functional.Pipe[int, string](
 		[]int{1, 2, 3},
-		functional.MapFn(func(i int) int { return i * 2 }),
+		functional.Map(func(i int) int { return i * 2 }),
 	)
 
 	assert.Error(t, err)
@@ -72,9 +72,9 @@ func TestPipeTypeAssertionError(t *testing.T) {
 func TestPipeChainedMaps(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{1, 2, 3},
-		functional.MapFn(func(i int) int { return i + 1 }),
-		functional.MapFn(func(i int) int { return i * 2 }),
-		functional.MapFn(func(i int) int { return i - 1 }),
+		functional.Map(func(i int) int { return i + 1 }),
+		functional.Map(func(i int) int { return i * 2 }),
+		functional.Map(func(i int) int { return i - 1 }),
 	)
 
 	assert.NoError(t, err)
@@ -85,8 +85,8 @@ func TestPipeMultipleTypeChanges(t *testing.T) {
 	// int -> string -> string
 	result, err := functional.Pipe[int, string](
 		[]int{1, 2, 3},
-		functional.MapFn(func(i int) string { return strconv.Itoa(i) }),
-		functional.MapFn(func(s string) string { return s + "!" }),
+		functional.Map(func(i int) string { return strconv.Itoa(i) }),
+		functional.Map(func(s string) string { return s + "!" }),
 	)
 
 	assert.NoError(t, err)
@@ -97,8 +97,8 @@ func TestPipeIntStringInt(t *testing.T) {
 	// int -> string -> int
 	result, err := functional.Pipe[int, int](
 		[]int{1, 2, 3},
-		functional.MapFn(func(i int) string { return strconv.Itoa(i * 10) }),
-		functional.MapFn(func(s string) int {
+		functional.Map(func(i int) string { return strconv.Itoa(i * 10) }),
+		functional.Map(func(s string) int {
 			n, _ := strconv.Atoi(s)
 			return n + 1
 		}),
@@ -108,10 +108,10 @@ func TestPipeIntStringInt(t *testing.T) {
 	assert.Equal(t, []int{11, 21, 31}, result)
 }
 
-func TestMapWithErrorFn(t *testing.T) {
+func TestMapWithError(t *testing.T) {
 	result, err := functional.Pipe[string, int](
 		[]string{"1", "2", "3"},
-		functional.MapWithErrorFn(func(s string) (int, error) {
+		functional.MapWithError(func(s string) (int, error) {
 			return strconv.Atoi(s)
 		}),
 	)
@@ -120,10 +120,10 @@ func TestMapWithErrorFn(t *testing.T) {
 	assert.Equal(t, []int{1, 2, 3}, result)
 }
 
-func TestMapWithErrorFnReturnsError(t *testing.T) {
+func TestMapWithErrorReturnsError(t *testing.T) {
 	_, err := functional.Pipe[string, int](
 		[]string{"1", "not a number", "3"},
-		functional.MapWithErrorFn(func(s string) (int, error) {
+		functional.MapWithError(func(s string) (int, error) {
 			return strconv.Atoi(s)
 		}),
 	)
@@ -131,10 +131,10 @@ func TestMapWithErrorFnReturnsError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestMapWithErrorFnInPipeline(t *testing.T) {
+func TestMapWithErrorInPipeline(t *testing.T) {
 	_, err := functional.Pipe[int, int](
 		[]int{1, 2, -3, 4},
-		functional.MapWithErrorFn(func(i int) (int, error) {
+		functional.MapWithError(func(i int) (int, error) {
 			if i < 0 {
 				return 0, fmt.Errorf("negative number: %d", i)
 			}
@@ -145,83 +145,83 @@ func TestMapWithErrorFnInPipeline(t *testing.T) {
 	assert.ErrorContains(t, err, "negative number: -3")
 }
 
-func TestInsertFirstFn(t *testing.T) {
+func TestInsertFirst(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{2, 3, 4},
-		functional.InsertFirstFn(1),
+		functional.InsertFirst(1),
 	)
 
 	assert.NoError(t, err)
 	assert.Equal(t, []int{1, 2, 3, 4}, result)
 }
 
-func TestInsertFirstFn_Empty(t *testing.T) {
+func TestInsertFirst_Empty(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{},
-		functional.InsertFirstFn(1),
+		functional.InsertFirst(1),
 	)
 
 	assert.NoError(t, err)
 	assert.Equal(t, []int{1}, result)
 }
 
-func TestInsertFirstFn_TypeAssertionError(t *testing.T) {
+func TestInsertFirst_TypeAssertionError(t *testing.T) {
 	_, err := functional.Pipe[int, string](
 		[]int{1, 2, 3},
-		functional.MapFn(func(i int) string { return fmt.Sprintf("%d", i) }),
-		functional.InsertFirstFn(0), // int into []string -> error
+		functional.Map(func(i int) string { return fmt.Sprintf("%d", i) }),
+		functional.InsertFirst(0), // int into []string -> error
 	)
 
 	assert.Error(t, err)
 }
 
-func TestInsertLastFn(t *testing.T) {
+func TestInsertLast(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{1, 2, 3},
-		functional.InsertLastFn(4),
+		functional.InsertLast(4),
 	)
 
 	assert.NoError(t, err)
 	assert.Equal(t, []int{1, 2, 3, 4}, result)
 }
 
-func TestInsertLastFn_Empty(t *testing.T) {
+func TestInsertLast_Empty(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{},
-		functional.InsertLastFn(1),
+		functional.InsertLast(1),
 	)
 
 	assert.NoError(t, err)
 	assert.Equal(t, []int{1}, result)
 }
 
-func TestInsertLastFn_InPipeline(t *testing.T) {
+func TestInsertLast_InPipeline(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{1, 2, 3},
-		functional.FilterFn(func(i int) bool { return i > 1 }),
-		functional.InsertLastFn(99),
+		functional.Filter(func(i int) bool { return i > 1 }),
+		functional.InsertLast(99),
 	)
 
 	assert.NoError(t, err)
 	assert.Equal(t, []int{2, 3, 99}, result)
 }
 
-func TestConsFn(t *testing.T) {
+func TestCons(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{2, 3, 4},
-		functional.ConsFn(1),
+		functional.Cons(1),
 	)
 
 	assert.NoError(t, err)
 	assert.Equal(t, []int{1, 2, 3, 4}, result)
 }
 
-func TestInsertFirstFn_InPipeline(t *testing.T) {
+func TestInsertFirst_InPipeline(t *testing.T) {
 	result, err := functional.Pipe[int, int](
 		[]int{3, 4, 5},
-		functional.InsertFirstFn(2),
-		functional.InsertFirstFn(1),
-		functional.InsertLastFn(6),
+		functional.InsertFirst(2),
+		functional.InsertFirst(1),
+		functional.InsertLast(6),
 	)
 
 	assert.NoError(t, err)
