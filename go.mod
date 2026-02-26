@@ -1,4 +1,4 @@
-module github.com/bluemir/functional
+module github.com/bluemir/functional/v2
 
 go 1.23.0
 
