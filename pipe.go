@@ -61,6 +61,64 @@ func Cons[T any](elem T) PipeFn {
 	return InsertFirst[T](elem)
 }
 
+// Tap returns a PipeFn that applies a side-effect function to each element
+// without modifying the slice. Useful for logging, debugging, or metrics collection.
+func Tap[T any](fn func(T)) PipeFn {
+	return func(input any /* []T */) (any /* []T */, error) {
+		slice, ok := input.([]T)
+		if !ok {
+			return nil, fmt.Errorf("Tap: type assertion failed: expected []%T, got %T", *new(T), input)
+		}
+		for _, v := range slice {
+			fn(v)
+		}
+		return slice, nil
+	}
+}
+
+// TapWithError returns a PipeFn that applies a side-effect function to each element
+// without modifying the slice. If fn returns a non-nil error, the pipeline is aborted.
+func TapWithError[T any](fn func(T) error) PipeFn {
+	return func(input any /* []T */) (any /* []T */, error) {
+		slice, ok := input.([]T)
+		if !ok {
+			return nil, fmt.Errorf("TapWithError: type assertion failed: expected []%T, got %T", *new(T), input)
+		}
+		for _, v := range slice {
+			if err := fn(v); err != nil {
+				return nil, err
+			}
+		}
+		return slice, nil
+	}
+}
+
+// Once returns a PipeFn that executes fn once, passing the slice through unchanged.
+// No type parameter needed — the slice is not accessed.
+func Once(fn func() error) PipeFn {
+	return func(input any) (any, error) {
+		if err := fn(); err != nil {
+			return nil, err
+		}
+		return input, nil
+	}
+}
+
+// OnceWith returns a PipeFn that executes fn with access to the current typed slice.
+// The slice passes through unchanged.
+func OnceWith[T any](fn func([]T) error) PipeFn {
+	return func(input any) (any, error) {
+		slice, ok := input.([]T)
+		if !ok {
+			return nil, fmt.Errorf("OnceWith: type assertion failed: expected []%T, got %T", *new(T), input)
+		}
+		if err := fn(slice); err != nil {
+			return nil, err
+		}
+		return slice, nil
+	}
+}
+
 // example
 // functional.Pipe[int, string](
 //   []int{1, 2, 3},
